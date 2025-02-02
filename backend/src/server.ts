@@ -2,6 +2,7 @@ import express from 'express';
 import connectDB from './config/database';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import mindMapRoutes from './routes/mindMapRoutes';
 
 dotenv.config({ path: './.env' });
 
@@ -14,6 +15,7 @@ connectDB();
 app.use(express.json()); 
 
 app.use('/api/auth', authRoutes); 
+app.use('/api/mindmaps', mindMapRoutes);
 
 app.get('/', (req, res) => {
   res.send('ThinkSpace Backend is running!');
