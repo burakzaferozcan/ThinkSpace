@@ -1,8 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
+
+interface Node {
+  id: string;
+  x: number;
+  y: number;
+  text: string;
+}
+
+interface Edge {
+  id: string;
+  source: Node;
+  target: Node;
+}
 
 interface MindmapState {
-  nodes: any[];
-  edges: any[];
+  nodes: Node[];
+  edges: Edge[];
 }
 
 const initialState: MindmapState = {
@@ -10,23 +24,64 @@ const initialState: MindmapState = {
   edges: [],
 };
 
-export const mindmapSlice = createSlice({
+const mindmapSlice = createSlice({
   name: 'mindmap',
   initialState,
   reducers: {
-    addNode: (state, action: PayloadAction<any>) => {
-      state.nodes.push(action.payload);
+    addNode: (state, action: PayloadAction<{ x: number; y: number; text: string }>) => {
+      const { x, y, text } = action.payload;
+      const newNode: Node = {
+        id: uuidv4(),
+        x,
+        y,
+        text,
+      };
+      state.nodes.push(newNode);
     },
-    addEdge: (state, action: PayloadAction<any>) => {
-      state.edges.push(action.payload);
+    addEdge: (state, action: PayloadAction<{ source: Node; target: Node }>) => {
+      const { source, target } = action.payload;
+      const newEdge: Edge = {
+        id: uuidv4(), // Benzersiz ID oluştur
+        source,
+        target,
+      };
+      state.edges.push(newEdge);
     },
-    updateNode: (state, action: PayloadAction<any>) => {
+    updateNodeText: (state, action: PayloadAction<{ id: string; text: string }>) => {
+      const { id, text } = action.payload;
+      const node = state.nodes.find(node => node.id === id);
+      if (node) {
+        node.text = text;
+      }
     },
-    deleteNode: (state, action: PayloadAction<string>) => {
+    updateNodePosition: (state, action: PayloadAction<{ id: string; deltaX: number; deltaY: number }>) => {
+      const { id, deltaX, deltaY } = action.payload;
+      const node = state.nodes.find(node => node.id === id);
+      if (node) {
+        node.x += deltaX;
+        node.y += deltaY;
+    
+        // Bağlantıların kaynak veya hedef düğümlerini güncelle
+        state.edges.forEach(edge => {
+          if (edge.source.id === id) {
+            edge.source = { ...node };
+          }
+          if (edge.target.id === id) {
+            edge.target = { ...node };
+          }
+        });
+      }
+    },
+    removeNode: (state, action: PayloadAction<string>) => {
+      state.nodes = state.nodes.filter(node => node.id !== action.payload);
+      state.edges = state.edges.filter(edge => edge.source.id !== action.payload && edge.target.id !== action.payload);
+    },
+    removeEdge: (state, action: PayloadAction<{ sourceId: string; targetId: string }>) => {
+      state.edges = state.edges.filter(edge => edge.source.id !== action.payload.sourceId || edge.target.id !== action.payload.targetId);
     },
   },
 });
 
-export const { addNode, addEdge, updateNode, deleteNode } = mindmapSlice.actions;
+export const { addNode, addEdge, updateNodeText, updateNodePosition ,removeEdge,removeNode} = mindmapSlice.actions;
 
 export default mindmapSlice.reducer;
