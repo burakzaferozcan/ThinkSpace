@@ -6,7 +6,7 @@ import { RootState } from '../../redux/store';
 import Node from '../molecules/Node';
 import Edge from '../molecules/Edge';
 
-const MindMapCanvas: React.FC = () => {
+export const MindMapCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dispatch = useDispatch();
   const nodes = useSelector((state: RootState) => state.mindmap.nodes);
@@ -111,5 +111,3 @@ const MindMapCanvas: React.FC = () => {
     </>
   );
 };
-
-export default MindMapCanvas;

@@ -1,5 +1,5 @@
 import React from 'react';
-import MindMapCanvas from '../organisms/MindMapCanvas';
+import { MindMapCanvas } from '../organisms/MindMapCanvas';
 
 const MindMapTemplate: React.FC = () => {
   return (
