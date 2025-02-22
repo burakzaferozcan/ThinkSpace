@@ -3,8 +3,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNode, addEdge, updateNodeText, updateNodePosition, removeNode, removeEdge } from '../../redux/features/mindmap/mindmapSlice';
 import { RootState } from '../../redux/store';
-import Node from '../molecules/Node';
+import NodeComponent from '../molecules/Node';
 import Edge from '../molecules/Edge';
+import { Node as MindMapNode } from '../../redux/features/mindmap/mindmapSlice';
 
 export const MindMapCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,7 +13,10 @@ export const MindMapCanvas: React.FC = () => {
   const nodes = useSelector((state: RootState) => state.mindmap.nodes);
   const edges = useSelector((state: RootState) => state.mindmap.edges);
 
-  const [sourceNode, setSourceNode] = useState< any | null>(null);
+  const [sourceNode, setSourceNode] = useState<any | null>(null);
+
+  const previousNodes = useRef<MindMapNode[]>([]);
+  const previousEdges = useRef< {source: MindMapNode, target: MindMapNode, id: string}[] >([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -40,6 +44,9 @@ export const MindMapCanvas: React.FC = () => {
       ctx.lineTo(edge.target.x, edge.target.y);
       ctx.stroke();
     });
+
+    previousNodes.current = nodes;
+    previousEdges.current = edges;
   }, [nodes, edges]);
 
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -87,8 +94,8 @@ export const MindMapCanvas: React.FC = () => {
         className="absolute top-0 left-0"
         onClick={handleCanvasClick}
       />
-      {nodes.map(node => (
-        <Node
+{nodes.map(node => (
+        <NodeComponent
           key={node.id}
           id={node.id}
           x={node.x}
@@ -102,7 +109,7 @@ export const MindMapCanvas: React.FC = () => {
       ))}
       {edges.map(edge => (
         <Edge
-          key={edge.id} 
+          key={edge.id}
           source={edge.source}
           target={edge.target}
           onRemoveEdge={handleRemoveEdge} // Silme fonksiyonunu Edge'e gönder
