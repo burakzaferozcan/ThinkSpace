@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 
-interface Node {
+export interface Node {
   id: string;
   x: number;
   y: number;
@@ -61,12 +61,10 @@ const mindmapSlice = createSlice({
         node.x += deltaX;
         node.y += deltaY;
     
-        // Bağlantıların kaynak veya hedef düğümlerini güncelle
         state.edges.forEach(edge => {
           if (edge.source.id === id) {
             edge.source = { ...node };
-          }
-          if (edge.target.id === id) {
+          } else if (edge.target.id === id) {
             edge.target = { ...node };
           }
         });
